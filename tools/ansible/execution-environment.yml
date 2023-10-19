@@ -1,0 +1,58 @@
+---
+version: 3
+
+build_arg_defaults:
+  ANSIBLE_GALAXY_CLI_COLLECTION_OPTS: '--pre'
+
+dependencies:
+  ansible_core:
+    package_pip: ansible-core==2.15.1
+  ansible_runner:
+    package_pip: ansible-runner==2.3.3
+  galaxy: requirements.yml
+  python: requirements.txt
+  python_interpreter:
+    python_path: /usr/local/bin/python
+  system: bindep.txt
+
+images:
+  base_image:
+    name: docker.io/python:3.11.4-slim
+
+additional_build_files:
+  - src: ansible.cfg
+    dest: configs
+  - src: /usr/bin/python3.11
+    dest: python
+
+additional_build_steps:
+  prepend_galaxy:
+    - ADD _build/configs/ansible.cfg ~/.ansible.cfg
+
+  prepend_builder:
+    - RUN ln -T /usr/local/bin/python /usr/bin/python3.11
+    - RUN apt update -y && apt install -y git 
+
+  prepend_final: |
+    RUN whoami
+    RUN cat /etc/os-release
+    RUN apt update -y && apt install -y git nano 
+#    RUN dnf install -y dnf-plugins-core
+#    RUN dnf config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+#    RUN dnf update -y
+#    RUN dnf install -y terraform
+
+  append_final:
+    - RUN apt update -y && apt install -y gpg wget gnupg
+    - RUN wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+    - RUN echo "deb [arch=amd64 signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com bookworm main" >> /etc/apt/sources.list.d/hashicorp.list
+    - RUN cat /etc/apt/sources.list.d/hashicorp.list
+    - RUN apt -y update
+    - RUN apt install -y terraform dnsutils
+    - RUN apt remove -y wget
+    - RUN apt-get clean -y
+    - RUN rm /usr/local/bin/python3.11
+    - COPY _build/python/python3.11 /usr/local/bin/python3.11
+
+options:
+    package_manager_path: /usr/bin/apt

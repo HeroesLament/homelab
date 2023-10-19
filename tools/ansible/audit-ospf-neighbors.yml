@@ -1,0 +1,7 @@
+---
+- name: Audit OSPF Neighbors
+  hosts: all
+  gather_facts: no
+  vars:
+    ansible_connection: network_cli
+  tasks:

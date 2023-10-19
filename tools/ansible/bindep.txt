@@ -1,0 +1,2 @@
+git [platform:dpkg]
+git-lfs [platform:dpkg]

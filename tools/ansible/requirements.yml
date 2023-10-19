@@ -1,0 +1,11 @@
+---
+collections:
+  - name: ansible.posix
+  - name: ansible.utils
+  - name: community.general
+  # Collection to interface with the AWX API if necessary
+  - name: awx.awx
+  # Collections for virtual network lab
+  - name: frr.frr
+  - name: vyos.vyos
+
